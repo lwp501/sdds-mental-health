@@ -53,6 +53,26 @@ def save_jsonl(data, output_path):
     print(f"\nSaved {len(data)} records to '{output_path}'.")
 
 
+def deduplicate_videos(input_urls):
+    """
+    Filter out duplicate videos to reduce scraping needed """
+
+    seen_ids = set() # track seen_ids
+
+    unique_urls = []
+
+    for url in input_urls:
+        video_id = extract_video_id(url)
+        
+        if video_id in seen_ids:
+            print(f"[SKIP] Duplicate video detected: {video_id}")
+            continue
+            
+        seen_ids.add(video_id)
+        unique_urls.append(url)
+        
+    return unique_urls
+
 class YouTubeScraperFetcher:
     """Fetches YouTube video metadata using yt-dlp"""
 
@@ -118,10 +138,14 @@ def main():
     urls = load_urls(args.input)
     print(f"Loaded {len(urls)} lines from '{args.input}'.")
 
+    #deduplicate
+    urls_to_scrape = deduplicate_videos(urls)
+    print(f"Total of {len(urls_to_scrape)} ready to scrape")
+
     # Process and save results
     
     fetcher = YouTubeScraperFetcher()
-    metadata = fetcher.process_urls(urls)
+    metadata = fetcher.process_urls(urls_to_scrape)
     save_jsonl(metadata, args.output)
 
 if __name__ == "__main__":
