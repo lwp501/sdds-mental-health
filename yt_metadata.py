@@ -36,7 +36,7 @@ def extract_video_id(url):
 
 
 def load_urls(file_path):
-    """Loads URLs from a txt file"""
+    """Loads URLs from a txt file, ignore empty lines"""
     if not os.path.exists(file_path):
         print(f"Error: Input file '{file_path}' not found.")
         sys.exit(1)
@@ -93,6 +93,8 @@ class YouTubeScraperFetcher:
             'skip_download': True,
             'extract_flat': False,
             'no_warnings': True,
+            'sleep_interval': 1,
+            'max_sleep_interval': 5 # randomised sleep between 1 and 5 seconds 
         }
 
         try:
