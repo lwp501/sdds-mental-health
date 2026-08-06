@@ -16,6 +16,21 @@ This project is currently under active development. Tests, sample inputs, and ou
 
 ## TO COME
 
+### Ground-Truth & Data Splitting
+* Update `prepare_metadata.py` to include  `ground_truth`, where available.
+* Create `split_data.py` to derive URLs into three datasets:
+  * `train.jsonl`: Labeled records reserved for future supervised training.
+  * `test.jsonl`: Labeled benchmark records reserved exclusively for evaluation.
+  * `unlabeled.jsonl`: Production videos without ground truth.
+
+### Performance Evaluation
+* `evaluate.py` to compare predictions against ground-truth labels on `test.jsonl`.
+
+### Supervised  Models 
+* Fine-tuned models using `train.jsonl`.
+
+### More flexible categories for labels
+
 
 
 
