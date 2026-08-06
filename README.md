@@ -8,8 +8,12 @@ This project is currently under active development. Tests, sample inputs, and ou
 
 ## Files
 
-* requirements.txt
-* yt_metatadata.py
+* `.python-version`: Specifies the Python version for environment setup.
+* `requirements.txt`: python package dependencies to install
+* `yt_metatadata.py`: Extracts metadata from YouTube video URLs in `.txt` format using `yt-dlp` (no API key required). Outputs structured records into a `.jsonl` file.
+
+## TO COME
+
 
 
 
