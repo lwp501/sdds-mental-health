@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import yt_dlp
+from youtube_transcript_api import YouTubeTranscriptApi
 
 
 def extract_video_id(url):
@@ -76,9 +77,9 @@ def deduplicate_videos(input_urls):
 class YouTubeScraperFetcher:
     """Fetches YouTube video metadata using yt-dlp"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, fetch_transcript=False, *args, **kwargs):
         # Accepts extra arguments gracefully for interface compatibility
-        pass
+        self.fetch_transcript = fetch_transcript
 
     def fetch_single(self, raw_url_or_id):
         """Processes a single URL or video ID and returns a metadata dictionary."""
@@ -97,10 +98,12 @@ class YouTubeScraperFetcher:
             'max_sleep_interval': 5 # randomised sleep between 1 and 5 seconds 
         }
 
+
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(clean_url, download=False)
-                return {
+
+                vid_info = {
                     "video_id": video_id,
                     "url": clean_url,
                     "title": info.get("title"),
@@ -112,6 +115,18 @@ class YouTubeScraperFetcher:
                     "view_count": info.get("view_count"),
                     "like_count": info.get("like_count")
                 }
+                if self.fetch_transcript:
+                    try:
+                        ytt_api = YouTubeTranscriptApi()
+                        fetched_transcript = ytt_api.fetch(video_id, languages=['en', 'en-US', 'en-GB'])
+                        # Concatenate text entries into a single string
+                        vid_info["transcript"] = " ".join([item.text for item in fetched_transcript])
+                    except Exception as sub_err:
+                        print(f"Notice: No transcript available for video '{video_id}' ({sub_err})")
+                        vid_info["transcript"] = None
+
+                return vid_info
+            
         except Exception as e:
             print(f"Error scraping video ID '{video_id}': {e}")
             return None
@@ -133,6 +148,7 @@ def main():
     parser = argparse.ArgumentParser(description="Fetch YouTube video metadata using yt-dlp.")
     parser.add_argument("-i", "--input", required=True, help="Path to input text file containing YouTube URLs.")
     parser.add_argument("-o", "--output", default="yt_metadata_output.jsonl", help="Output path for JSONL file.")
+    parser.add_argument("-t", "--transcript", action="store_true", help="Fetch video transcripts with metadata")    
 
     args = parser.parse_args()
 
@@ -146,7 +162,7 @@ def main():
 
     # Process and save results
     
-    fetcher = YouTubeScraperFetcher()
+    fetcher = YouTubeScraperFetcher(fetch_transcript=args.transcript)
     metadata = fetcher.process_urls(urls_to_scrape)
     save_jsonl(metadata, args.output)
 
