@@ -4,14 +4,20 @@ from pathlib import Path
 from transformers import pipeline
 
 
-def classify_dataset_zero_shot(input_file, output_file):
-    "Use a defauly huggingface zero shot classification model"
+def classify_dataset_zero_shot(input_file, output_file, model, revision):
+    """
+    Use a huggingface zero shot classification model. 
+    Defaults to main facebook/bart-large-mnli
+    Outputs a json file
+    """
 
     input_path = Path(input_file)
     output_path = Path(output_file)
 
     #load default huggingface model
-    classifier = pipeline("zero-shot-classification")
+    classifier = pipeline("zero-shot-classification",
+                          model = model,
+                          revision = revision)
 
     # Print the loaded model
     model_name = classifier.model.config._name_or_path
@@ -59,14 +65,16 @@ def classify_dataset_zero_shot(input_file, output_file):
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Classify JSONL text data using default Hugging Face zero-shot classification."
+        description="Classify JSONL text data using a Hugging Face zero-shot classification."
     )
     parser.add_argument("-i", "--input", default = "classification_data.jsonl", help="Path to input .jsonl file")
     parser.add_argument("-o", "--output", default = "classified_output_ZS.jsonl", help="Path to output .jsonl file")
+    parser.add_argument("-m", "--model", default = "facebook/bart-large-mnli", help="Optional Hugging Face model identifier")
+    parser.add_argument("-r", "--revision", default = "main", help="Optional - model revision to use (default:main)")
 
     args = parser.parse_args()
 
-    classify_dataset_zero_shot(args.input, args.output)
+    classify_dataset_zero_shot(args.input, args.output, args.model, args.revision)
 
 
 
