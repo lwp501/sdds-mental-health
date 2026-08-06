@@ -5,6 +5,7 @@ test.py
 *.txt
 *.jsonl
 # !example_urls.txt
+!.python_version.txt
 
 #cache
 __pycache__/
