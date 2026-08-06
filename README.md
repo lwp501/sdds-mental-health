@@ -6,6 +6,8 @@ A repo of code to process donated digital trace data, as collected by the Smart 
 
 This project is currently under active development. Tests, sample inputs, and output pipelines are structured around **synthetic or sample data** for demonstration and development purposes.
 
+This work is supported by Smart Data Research UK, a UKRI investment [grant number UKRI4005]
+
 ## Files
 
 * `.python-version`: Specifies the Python version for environment setup
@@ -18,10 +20,10 @@ This project is currently under active development. Tests, sample inputs, and ou
 
 ### Ground-Truth & Data Splitting
 * Update `prepare_metadata.py` to include  `ground_truth`, where available.
-* Create `split_data.py` to derive URLs into three datasets:
+* Create `split_data.py` to split URLs into three datasets:
   * `train.jsonl`: Labeled records reserved for future supervised training.
-  * `test.jsonl`: Labeled benchmark records reserved exclusively for evaluation.
-  * `unlabeled.jsonl`: Production videos without ground truth.
+  * `test.jsonl`: Labeled records reserved for evaluation.
+  * `unlabeled.jsonl`: Videos without ground truth
 
 ### Performance Evaluation
 * `evaluate.py` to compare predictions against ground-truth labels on `test.jsonl`.
