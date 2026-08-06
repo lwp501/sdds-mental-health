@@ -1,0 +1,15 @@
+test.py
+
+# ignore data files, with exceptions
+*.csv
+*.txt
+*.jsonl
+# !example_urls.txt
+
+#cache
+__pycache__/
+
+#venv
+.venv/
+!requirements.txt
+
