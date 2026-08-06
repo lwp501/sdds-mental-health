@@ -35,27 +35,39 @@ def classify_dataset_zero_shot(input_file, output_file, model, revision):
 
             record = json.loads(line)
 
-            # Combine values into single string
-            text_parts = [str(val) for val in record.values() if val is not None and str(val).strip() ]
+            video_id = record.get("video_id") 
+
+            # Combine values into single string, exclude video_id
+            text_parts = [
+                str(val) for key, val in record.items() 
+                if key not in ("video_id", "video-id") and val is not None and str(val).strip()
+            ]
             text_to_classify = " | ".join(text_parts)
 
             if not text_to_classify:
-                record["predicted_label"] = "unknown"
-                record["confidence_score"] = 0.0
+                output_record = {
+                    "video_id": video_id,
+                    "predicted_label": "unknown",
+                    "confidence_score": 0.0,
+                    "classification_text": "none"
+                }
+
             else:
                 result = classifier(
                     text_to_classify,
                     candidate_labels,
                     hypothesis_template=hypothesis_template
                 )
+
+                output_record = {
+                    "video_id": video_id,
+                    "predicted_label": result["labels"][0],
+                    "confidence_score": result["scores"][0],
+                    "classification_text" : text_to_classify
+                }
                 
-                top_label = result["labels"][0]
-                top_score = result["scores"][0]
 
-                record["predicted_label"] = top_label
-                record["confidence_score"] = round(top_score, 4)
-
-            f_out.write(json.dumps(record) + "\n")
+            f_out.write(json.dumps(output_record) + "\n")
             processed_count += 1
             if processed_count % 5 == 0:
                 print(f"Classified {processed_count} records...")
@@ -67,7 +79,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Classify JSONL text data using a Hugging Face zero-shot classification."
     )
-    parser.add_argument("-i", "--input", default = "classification_data.jsonl", help="Path to input .jsonl file")
+    parser.add_argument("-i", "--input", default = "data_for_classification.jsonl", help="Path to input .jsonl file")
     parser.add_argument("-o", "--output", default = "classified_output_ZS.jsonl", help="Path to output .jsonl file")
     parser.add_argument("-m", "--model", default = "facebook/bart-large-mnli", help="Optional Hugging Face model identifier")
     parser.add_argument("-r", "--revision", default = "main", help="Optional - model revision to use (default:main)")
