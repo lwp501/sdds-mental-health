@@ -12,6 +12,7 @@ This project is currently under active development. Tests, sample inputs, and ou
 * `requirements.txt`: python package dependencies to install
 * `yt_metatadata.py`: Extracts metadata from YouTube video URLs in `.txt` format using `yt-dlp` (no API key required). Outputs structured records into a `.jsonl` file
 * `prepare_metadata.py`: Take scraped youtube metadata and selects only those fields to be used for a specific task
+* `zero_shot_classification.py`: Run basic zero shot classification model
 
 ## TO COME
 
