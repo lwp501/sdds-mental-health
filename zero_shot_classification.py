@@ -23,7 +23,10 @@ def classify_dataset_zero_shot(input_file, output_file, model, revision):
     model_name = classifier.model.config._name_or_path
     print(f"Using Hugging Face model: {model_name}")
 
-    candidate_labels = ["soccer", "non-soccer"] ###simple example based on example_urls.txt
+    candidate_labels = candidate_labels = [
+    "Sports & Fitness",
+    "Gaming", "Science & Technology", "Education & Academics",
+    "Music & Audio", "News & Politics", "Entertainment & Comedy", "Lifestyle & Vlogs", "Mental Health"] ###simple example based on YouTube standard
     hypothesis_template = "This video is about {}."
     processed_count = 0
 

@@ -6,7 +6,7 @@ test.py
 *.jsonl
 # !example_urls.txt
 !.python_version.txt
-
+*.png
 #cache
 __pycache__/
 
