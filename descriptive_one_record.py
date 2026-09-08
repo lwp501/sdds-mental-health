@@ -8,16 +8,12 @@ distributions for N=1 YouTube exposure and wellbeing data.
 import json
 import matplotlib.pyplot as plt
 import pandas as pd
+import argparse
 
 plt.rcParams.update({"font.size": 11, "figure.autolayout": True})
 
 
-def generate_descriptive_statistics(
-    jsonl_path="classified_output_ZS.jsonl",
-    youtube_csv="synthetic_data/youtube_LWP.csv",
-    wellbeing_csv="synthetic_data/Digital Wellbeing LWP.csv",
-    exposure_window_days=90,
-):
+def generate_descriptive_statistics(jsonl_path, youtube_csv, wellbeing_csv, exposure_window_days):
     print("--- Step 1: Loading & Linking Datasets ---")
 
     # 1. Load Zero-Shot classifications
@@ -279,4 +275,40 @@ def generate_descriptive_statistics(
 
 
 if __name__ == "__main__":
-    generate_descriptive_statistics()
+    parser = argparse.ArgumentParser(
+        description="Generate descriptive statistics and charts for YouTube exposure and wellbeing data."
+    )
+    parser.add_argument(
+        "-j",
+        "--jsonl",
+        default="classified_output_ZS_IMRY_7.jsonl",
+        help="Path to classified JSONL file (default: classified_output_ZS_IMRY_7.jsonl)",
+    )
+    parser.add_argument(
+        "-y",
+        "--youtube",
+        default="synthetic_data/youtube_LWP.csv",
+        help="Path to YouTube CSV file (default: synthetic_data/youtube_LWP.csv)",
+    )
+    parser.add_argument(
+        "-w",
+        "--wellbeing",
+        default="synthetic_data/Digital Wellbeing LWP.csv",
+        help="Path to Digital Wellbeing CSV file (default: synthetic_data/Digital Wellbeing LWP.csv)",
+    )
+    parser.add_argument(
+        "-e",
+        "--exposure-window",
+        type=int,
+        default=90,
+        help="Preceding exposure window in days (default: 90)",
+    )
+
+    args = parser.parse_args()
+
+    generate_descriptive_statistics(
+        jsonl_path=args.jsonl,
+        youtube_csv=args.youtube,
+        wellbeing_csv=args.wellbeing,
+        exposure_window_days=args.exposure_window,
+    )
