@@ -17,6 +17,7 @@ import re
 import sys
 import yt_dlp
 from youtube_transcript_api import YouTubeTranscriptApi
+import csv
 
 
 def extract_video_id(url):
@@ -37,13 +38,45 @@ def extract_video_id(url):
 
 
 def load_urls(file_path):
-    """Loads URLs from a txt file, ignore empty lines"""
+    """Loads URLs from a .txt or .csv file"""
     if not os.path.exists(file_path):
         print(f"Error: Input file '{file_path}' not found.")
         sys.exit(1)
     
-    with open(file_path, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f if line.strip()]
+    urls = []
+    ext = os.path.splitext(file_path)[1].lower()
+
+    if ext == ".csv":
+        with open(file_path, "r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            # Check for standard URL column headers
+            if reader.fieldnames:
+                field_map = {name.lower().strip(): name for name in reader.fieldnames if name}
+                url_col = None
+                for candidate in ["url", "link", "youtube_url", "video_url", "video", "youtube_link"]:
+                    if candidate in field_map:
+                        url_col = field_map[candidate]
+                        break
+                
+                if url_col:
+                    for row in reader:
+                        val = row.get(url_col)
+                        if val and val.strip():
+                            urls.append(val.strip())
+                    return urls
+
+            # Fallback for headerless CSVs or unrecognised column headers
+            f.seek(0)
+            raw_reader = csv.reader(f)
+            for row in raw_reader:
+                for cell in row:
+                    if cell and cell.strip():
+                        urls.append(cell.strip())
+    else:
+        with open(file_path, "r", encoding="utf-8") as f:
+            urls = [line.strip() for line in f if line.strip()]
+
+    return urls
 
 
 def save_jsonl(data, output_path):
@@ -56,15 +89,17 @@ def save_jsonl(data, output_path):
 
 def deduplicate_videos(input_urls):
     """
-    Filter out duplicate videos to reduce scraping needed """
+    Filter out duplicate or invalid video entries to reduce scraping needed
+    """
 
     seen_ids = set() # track seen_ids
-
     unique_urls = []
 
     for url in input_urls:
         video_id = extract_video_id(url)
-        
+        if not video_id:
+            continue
+
         if video_id in seen_ids:
             print(f"[SKIP] Duplicate video detected: {video_id}")
             continue
