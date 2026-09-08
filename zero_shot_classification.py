@@ -4,7 +4,7 @@ from pathlib import Path
 from transformers import pipeline
 
 
-def classify_dataset_zero_shot(input_file, output_file, model, revision):
+def classify_dataset_zero_shot(input_file, output_file, model, revision, candidate_labels):
     """
     Use a huggingface zero shot classification model. 
     Defaults to main facebook/bart-large-mnli
@@ -22,11 +22,8 @@ def classify_dataset_zero_shot(input_file, output_file, model, revision):
     # Print the loaded model
     model_name = classifier.model.config._name_or_path
     print(f"Using Hugging Face model: {model_name}")
+    print(f"Candidate labels: {candidate_labels}")
 
-    candidate_labels = candidate_labels = [
-    "Sports & Fitness",
-    "Gaming", "Science & Technology", "Education & Academics",
-    "Music & Audio", "News & Politics", "Entertainment & Comedy", "Lifestyle & Vlogs", "Mental Health"] ###simple example based on YouTube standard
     hypothesis_template = "This video is about {}."
     processed_count = 0
 
@@ -86,10 +83,16 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", default = "classified_output_ZS.jsonl", help="Path to output .jsonl file")
     parser.add_argument("-m", "--model", default = "facebook/bart-large-mnli", help="Optional Hugging Face model identifier")
     parser.add_argument("-r", "--revision", default = "main", help="Optional - model revision to use (default:main)")
+    parser.add_argument("-l", "--labels",
+                        nargs="+", default=["mental health", "news", "other"], 
+                        help="candidate labels (default: 'mental health' 'news' 'other')"
+    )
+
+
 
     args = parser.parse_args()
 
-    classify_dataset_zero_shot(args.input, args.output, args.model, args.revision)
+    classify_dataset_zero_shot(args.input, args.output, args.model, args.revision, args.labels)
 
 
 
